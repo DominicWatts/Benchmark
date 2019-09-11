@@ -1,5 +1,5 @@
 {
-    "name": "xigen/module-benchmark",
+    "name": "dominicwatts/benchmark",
     "description": "Benchmark shell script to test timings on actions",
     "type": "magento2-module",
     "license": "proprietary",
@@ -11,7 +11,14 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {},
+    "repositories": [{
+        "type": "composer",
+        "url": "https://repo.magento.com/"
+    }],
+    "require": {
+        "magento/framework": "*",
+        "php": "~7.0.0||~7.1.0||~7.2.0||~7.3.0"
+    },
     "autoload": {
         "files": [
             "registration.php"
