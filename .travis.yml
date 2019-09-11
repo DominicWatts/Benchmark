@@ -1,0 +1,29 @@
+sudo: false
+language: php
+matrix:
+  fast_finish: true
+  include:
+  - php: '5.6'
+  - php: '7.0'
+  - php: '7.1'
+    env: SNIFF=1
+  - php: '7.2'
+  - php: nightly
+  allow_failures:
+  - php: '5.6'
+  - php: nightly
+before_install:
+- echo "{\"http-basic\":{\"repo.magento.com\":{\"username\":\"${MAGENTO_USERNAME}\",\"password\":\"${MAGENTO_PASSWORD}\"}}}" > auth.json
+- if [[ "$SNIFF" == "1" ]]; then composer self-update; fi
+- if [[ "$SNIFF" == "1" ]]; then composer require squizlabs/php_codesniffer; fi
+- if [[ "$SNIFF" == "1" ]]; then composer require magento/magento-coding-standard; fi
+- if [[ "$SNIFF" == "1" ]]; then composer require dealerdirect/phpcodesniffer-composer-installer; fi
+- if [[ "$SNIFF" == "1" ]]; then composer install; fi
+- phpenv rehash
+script:
+- find -L . -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l
+- if [[ "$SNIFF" == "1" ]]; then php vendor/bin/phpcs --standard=Magento2 --ignore=*/etc/*,*/vendor/* ./; fi
+env:
+  global:
+  - secure: A8e+j6AyhjEycf4BIjK9BH6ey/aXC6DoJ4UHD75LpUnyCBgXi0lC7XE9g78mzQFNZSBu/knW50YgLxoByYHFe3NGIX44LBXSPh3ExuNJAiwD+eljfemEu2htGdWRGzBEyMZxtDODeZ8K6H0RzUpI4TQSg4/X4hCZe/JCDYhXSx0D2iGeUlzXWioctaftxfP2hMk2CQHBVyTowRpAAbJ3teU7VzpZuYYTUqPRT3ZYKOlasuns3MiFfAyWZndhZm24i9LJ5B7WL/JGaEYomiytGHbMQ627Ow6dK0/sBEeAiBNvMo85ruE0bMZfS8/OcqoOHqXOi5mF/XymUnB25vC4qhLfcUH/cdsAAkYNzG4l76R6qcVg7rYJrKaqc/XGDeqRFTLptRYoFFY9vFRWt0ZujwtoDS32YQuQ1iM1VCB+PMAcUWDCPWNvUdS8qXCD4hWNhI9T4wnsE0t53F7OC4RN6X4iy+f4qVTDhA3hR0mbFlMeBGTkIfAlpj+wpV7VS7m1uoo4KTAev68UyMyInQvMAU1vEWADXMxQhUET8Xm2Jh1w/BdaYlYSdCby3hu+aYBbj3yE9WkRJ4/2ZLDWr4D8I6hZkrmaHb+gdaqzHbUJf+mWiEqM46/wiX2xOd9ZlN1kwGp+MivCkKYNPDATrsfg0qBEMQj5s0KogVVIu3Up4lE=
+  - secure: Nm6aYVtxF3x7lympxEweV5atgyT4xAd7ihRfleGKXgkvnm7XxzoqGZp08CeNo4iDgqyUwar36NqJtRlNUjc05MSqJ67r/w5bc6Nz/MIPKNjknWneJGp1OEkZyZ7+hipCl7Oe4p/ZXX4HUwBBsIdvrTDA7yvtNS9YU3VnzR/8O2GupCLN3tL3fdECDlF5sIZar+2m8OW3jVkX2pXv39UqtmufiGAuNAe9BqnT4ymUBmM8zQf2b0NhzScMSZLUUIRe7+AYatpkcGmvzhePiVqZ6WcirIemPO0BzAr5VqrrXhuzWmqFPICiqQ2nM6aYLrWyOoEJsvZrsmhdM05g4KqCfmPNer4jTlgC7LD8W9oJflC599YK/PrDDhG9hGMByv8IbNqf07/SmKbg05cMVgF8fYw3H/WMmePvCCPTZ0enbO2sVYXJGVNr46KIqrrAZMdONZ4DUVhzovSxiZF6t65UCF+HCY9o00CQaHOVcAI+J3B6v8PQa0NfIhvHltBajjqp1wLbdTdKN1XT2Q2OzFo4lE4DDKBp6/9EfxI8KIFceE2tpaJdN5QoHo716UK2zPIpov+SkJbfeYuqOuBwSO7A6koLbTNyEjZKhg/46KsRJH7bhjL7865AuFz88JPc2YDhc7Mfba17pJrYRp4m7WcMvEUNV5Ox9jIkk1EKZCUWHVg=

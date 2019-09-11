@@ -3,7 +3,8 @@
 	<type name="Magento\Framework\Console\CommandList">
 		<arguments>
 			<argument name="commands" xsi:type="array">
-				<item name="Stock" xsi:type="object">Xigen\Benchmark\Console\Command\Stock</item>
+				<item name="Benchmark_Stock" xsi:type="object">Xigen\Benchmark\Console\Command\Stock</item>
+				<item name="Benchmark_Product" xsi:type="object">Xigen\Benchmark\Console\Command\Product</item>
 			</argument>
 		</arguments>
 	</type>

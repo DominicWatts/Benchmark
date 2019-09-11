@@ -5,6 +5,9 @@ namespace Xigen\Benchmark\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 
+/**
+ * Data helper class
+ */
 class Data extends AbstractHelper
 {
     const DEBUG = false;
@@ -74,6 +77,15 @@ class Data extends AbstractHelper
     public function getRandomStockNumber()
     {
         return rand(0, 30);
+    }
+
+    /**
+     * Random status
+     * @return int
+     */
+    public function getRandomStatus()
+    {
+        return rand(1, 2);
     }
 
     /**
@@ -182,6 +194,36 @@ class Data extends AbstractHelper
             $this->logger->critical($e);
             if (self::DEBUG) {
                 $output->writeln((string) __('%1 Problem SKU: %2 => QTY : %3', $this->dateTime->gmtDate(), $product->getSku(), (string) $qty));
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Update SKU status
+     * @param $sku
+     * @param $status
+     * @param null $output
+     * @return bool|void
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function updateSkuStatus($sku, $status, $output = null)
+    {
+        $product = $this->getProductBySku($sku);
+        if (!$product || !$output) {
+            return;
+        }
+        try {
+            $product->setStatus((int) $status);
+            $product = $this->productRepositoryInterface->save($product);
+            if (self::DEBUG) {
+                $output->writeln((string) __('%1 SKU: %2 => Status : %3', $this->dateTime->gmtDate(), $product->getSku(), (string) $status));
+            }
+            return $product;
+        } catch (\Exception $e) {
+            $this->logger->critical($e);
+            if (self::DEBUG) {
+                $output->writeln((string) __('%1 Problem SKU: %2 => Status : %3', $this->dateTime->gmtDate(), $product->getSku(), (string) $status));
             }
             return false;
         }
