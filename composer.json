@@ -1,0 +1,23 @@
+{
+    "name": "xigen/module-benchmark",
+    "description": "Benchmark shell script to test timings on actions",
+    "type": "magento2-module",
+    "license": "proprietary",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "email": "dominic@xigen.co.uk",
+            "name": "Dominic Xigen"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Xigen\\Benchmark\\": ""
+        }
+    }
+}
