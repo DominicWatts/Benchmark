@@ -90,7 +90,7 @@ class Product extends Command
                 return Cli::RETURN_FAILURE;
             }
 
-            $this->output->writeln((string) __('%1 Start Stock Benchmark', $this->dateTime->gmtDate()));
+            $this->output->writeln((string) __('%1 Start Product Benchmark', $this->dateTime->gmtDate()));
 
             $skus = $this->helper->getRandomSku($limit);
   
@@ -104,7 +104,7 @@ class Product extends Command
 
             $progress->finish();
             $this->output->writeln('');
-            $this->output->writeln((string) __('%1 Finish Stock Benchmark', $this->dateTime->gmtDate()));
+            $this->output->writeln((string) __('%1 Finish Product Benchmark', $this->dateTime->gmtDate()));
         }
     }
 
