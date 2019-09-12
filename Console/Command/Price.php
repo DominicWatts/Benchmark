@@ -13,9 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
- * Stock class
+ * Price class
  */
-class Stock extends Command
+class Price extends Command
 {
     const RUN_ARGUMENT = 'run';
     const LIMIT_OPTION = 'limit';
@@ -82,7 +82,7 @@ class Stock extends Command
         if ($run) {
             $helper = $this->getHelper('question');
             $question = new ConfirmationQuestion(
-                'You are about to run a benchmark test which alters stock figures on products. Are you sure? [y/N]',
+                'You are about to run a benchmark test which alters price on products. Are you sure? [y/N]',
                 false
             );
 
@@ -90,7 +90,7 @@ class Stock extends Command
                 return Cli::RETURN_FAILURE;
             }
 
-            $this->output->writeln((string) __('%1 Start Stock Benchmark', $this->dateTime->gmtDate()));
+            $this->output->writeln((string) __('%1 Start Product Price Benchmark', $this->dateTime->gmtDate()));
 
             $skus = $this->helper->getRandomSku($limit);
   
@@ -98,24 +98,24 @@ class Stock extends Command
             $progress->start();
 
             foreach ($skus as $sku) {
-                $this->helper->updateSkuStock($sku, $this->helper->getRandomStockNumber(), $this->output);
+                $this->helper->updateSkuPrice($sku, $this->output);
                 $progress->advance();
             }
 
             $progress->finish();
             $this->output->writeln('');
-            $this->output->writeln((string) __('%1 Finish Stock Benchmark', $this->dateTime->gmtDate()));
+            $this->output->writeln((string) __('%1 Finish Product Price Benchmark', $this->dateTime->gmtDate()));
         }
     }
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:stock [-l|--limit [LIMIT]] [--] <run>
+     * xigen:benchmark:price [-l|--limit [LIMIT]] [--] <run>
      */
     protected function configure()
     {
-        $this->setName("xigen:benchmark:stock");
-        $this->setDescription("Product stock update benchmark");
+        $this->setName("xigen:benchmark:price");
+        $this->setDescription("Product price update benchmark");
         $this->setDefinition([
              new InputArgument(self::RUN_ARGUMENT, InputArgument::REQUIRED, 'Run'),
              new InputOption(self::LIMIT_OPTION, '-l', InputOption::VALUE_OPTIONAL, 'Limit'),

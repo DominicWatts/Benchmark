@@ -13,9 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
- * Product class
+ * Customer class
  */
-class Product extends Command
+class Customer extends Command
 {
     const RUN_ARGUMENT = 'run';
     const LIMIT_OPTION = 'limit';
@@ -82,7 +82,7 @@ class Product extends Command
         if ($run) {
             $helper = $this->getHelper('question');
             $question = new ConfirmationQuestion(
-                'You are about to run a benchmark test which alters status on products. Are you sure? [y/N]',
+                'You are about to run a benchmark test which alters tax vat values on customers. Are you sure? [y/N]',
                 false
             );
 
@@ -90,32 +90,32 @@ class Product extends Command
                 return Cli::RETURN_FAILURE;
             }
 
-            $this->output->writeln((string) __('%1 Start Product Benchmark', $this->dateTime->gmtDate()));
+            $this->output->writeln((string) __('%1 Start Customer Benchmark', $this->dateTime->gmtDate()));
 
-            $skus = $this->helper->getRandomSku($limit);
+            $customerIds = $this->helper->getRandomCustomerId($limit);
   
-            $progress = new ProgressBar($this->output, count($skus));
+            $progress = new ProgressBar($this->output, count($customerIds));
             $progress->start();
 
-            foreach ($skus as $sku) {
-                $this->helper->updateSkuStatus($sku, $this->helper->getRandomStatus(), $this->output);
+            foreach ($customerIds as $customerId) {
+                $this->helper->updateCustomerTaxVat($customerId, $this->helper->getRandomTaxVat(), $this->output);
                 $progress->advance();
             }
 
             $progress->finish();
             $this->output->writeln('');
-            $this->output->writeln((string) __('%1 Finish Product Benchmark', $this->dateTime->gmtDate()));
+            $this->output->writeln((string) __('%1 Finish Customer Benchmark', $this->dateTime->gmtDate()));
         }
     }
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:product [-l|--limit [LIMIT]] [--] <run>
+     * xigen:benchmark:customer [-l|--limit [LIMIT]] [--] <run>
      */
     protected function configure()
     {
-        $this->setName("xigen:benchmark:product");
-        $this->setDescription("Product status update benchmark");
+        $this->setName("xigen:benchmark:customer");
+        $this->setDescription("Customer taxvat update benchmark");
         $this->setDefinition([
              new InputArgument(self::RUN_ARGUMENT, InputArgument::REQUIRED, 'Run'),
              new InputOption(self::LIMIT_OPTION, '-l', InputOption::VALUE_OPTIONAL, 'Limit'),
