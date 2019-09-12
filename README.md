@@ -12,14 +12,34 @@ Benchmark shell script to test timings on actions.
 
 # Usage instructions #
 
+Stock update
+
 `xigen:benchmark:stock [-l|--limit [LIMIT]] [--] <run>`
 
 `php bin/magento xigen:benchmark:stock run`
 
 `php bin/magento xigen:benchmark:stock run -l 10`
 
-`xigen:benchmark:product [-l|--limit [LIMIT]] [--] <run>`
+Product Status Update
 
-`php bin/magento xigen:benchmark:product run`
+`xigen:benchmark:status [-l|--limit [LIMIT]] [--] <run>`
 
-`php bin/magento xigen:benchmark:product run -l 10`
+`php bin/magento xigen:benchmark:status run`
+
+`php bin/magento xigen:benchmark:status run -l 10`
+
+Product Price Update
+
+`xigen:benchmark:price [-l|--limit [LIMIT]] [--] <run>`
+
+`php bin/magento xigen:benchmark:price run`
+
+`php bin/magento xigen:benchmark:price run -l 10`
+
+Customer Vat Number Update
+
+`xigen:benchmark:customer [-l|--limit [LIMIT]] [--] <run>`
+
+`php bin/magento xigen:benchmark:customer run`
+
+`php bin/magento xigen:benchmark:customer run -l 10`

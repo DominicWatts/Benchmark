@@ -4,7 +4,9 @@
 		<arguments>
 			<argument name="commands" xsi:type="array">
 				<item name="Benchmark_Stock" xsi:type="object">Xigen\Benchmark\Console\Command\Stock</item>
-				<item name="Benchmark_Product" xsi:type="object">Xigen\Benchmark\Console\Command\Product</item>
+				<item name="Benchmark_Status" xsi:type="object">Xigen\Benchmark\Console\Command\Status</item>
+				<item name="Benchmark_Price" xsi:type="object">Xigen\Benchmark\Console\Command\Price</item>
+				<item name="Benchmark_Customer" xsi:type="object">Xigen\Benchmark\Console\Command\Customer</item>
 			</argument>
 		</arguments>
 	</type>
