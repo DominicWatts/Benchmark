@@ -43,6 +43,16 @@ class Data extends AbstractHelper
     protected $customerRepositoryInterface;
 
     /**
+     * @var \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory
+     */
+    protected $categoryCollectionFactory;
+    
+    /**
+     * @var \Magento\Catalog\Api\CategoryRepositoryInterface
+     */
+    protected $categoryRepositoryInterface;
+
+    /**
      * Data constructor.
      * @param \Magento\Framework\App\Helper\Context $context
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
@@ -51,6 +61,8 @@ class Data extends AbstractHelper
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
      * @param \Magento\Customer\Model\ResourceModel\Customer\CollectionFactory $customerCollectionFactory
      * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepositoryInterface
+     * @param \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory
+     * @param \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepositoryInterface
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -59,7 +71,9 @@ class Data extends AbstractHelper
         \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistryInterface,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
         \Magento\Customer\Model\ResourceModel\Customer\CollectionFactory $customerCollectionFactory,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepositoryInterface
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepositoryInterface,
+        \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory,
+        \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepositoryInterface
     ) {
         $this->productCollectionFactory = $productCollectionFactory;
         $this->productRepositoryInterface = $productRepositoryInterface;
@@ -67,6 +81,8 @@ class Data extends AbstractHelper
         $this->dateTime = $dateTime;
         $this->customerCollectionFactory = $customerCollectionFactory;
         $this->customerRepositoryInterface = $customerRepositoryInterface;
+        $this->categoryCollectionFactory = $categoryCollectionFactory;
+        $this->categoryRepositoryInterface = $categoryRepositoryInterface;
         parent::__construct($context);
     }
 
@@ -364,5 +380,92 @@ class Data extends AbstractHelper
     public function getRandomTaxVat()
     {
         return (string) __("%1 %2", "GB", rand(1000000, 9999999));
+    }
+
+    /**
+     * Get random keyword from array
+     * @return string
+     */
+    public function getRandomKeyword()
+    {
+        $array = ["Shop", "Ecommerce","Xigen", "Magento"];
+        $randomIndex = array_rand($array);
+        return $array[$randomIndex];;
+    }
+
+    /**
+     * Return array of random IDs.
+     * @param int $limit
+     * @return array
+     */
+    public function getRandomCategoryId($limit = 1)
+    {
+        $categories = $this->getRandomCategory($limit);
+        $ids = [];
+        foreach ($categories as $category) {
+            $ids[$category->getId()] = $category->getId();
+        }
+        return $ids;
+    }
+    /**
+     * Return collection of random categories.
+     * @param int $limit
+     * @return \Magento\Catalog\Model\ResourceModel\Category\Collection
+     */
+    public function getRandomCategory($limit = 1)
+    {
+        $collection = $this->categoryCollectionFactory
+            ->create()
+            ->addAttributeToSelect('*')
+            ->addAttributeToFilter('entity_id', ['gt' => 1])
+            ->setPageSize($limit);
+        $collection->getSelect()->order('RAND()');
+        return $collection;
+    }
+
+    /**
+     * Get category by Id.
+     * @param int $categoryId
+     * @param int $storeId
+     * @return \Magento\Catalog\Model\Data\Category
+     */
+    public function getCategoryById($categoryId, $storeId = 1)
+    {
+        try {
+            return $this->categoryRepositoryInterface->get($categoryId, $storeId);
+        } catch (\Exception $e) {
+            $this->logger->critical($e);
+            return false;
+        }
+    }
+
+    /**
+     * Update category with keyword
+     * @param int $categoryId
+     * @param string $keywords
+     * @param int $storeId
+     * @param null $output
+     * @return mixed
+     */
+    public function updateCategoryKeywords($categoryId, $keywords, $storeId = 1, $output = null)
+    {
+        $category = $this->getCategoryById($categoryId, $storeId);
+        if (!$category || !$output) {
+            return;
+        }
+        try {
+            $category->setMetaKeywords($keywords);
+            $category = $this->categoryRepositoryInterface->save($category);
+            if (self::DEBUG) {
+                $output->writeln((string) __('%1 Category : %2 => Keywords : %3', $this->dateTime->gmtDate(), $category->getId(), (string) $keywords));
+            }
+            return $category;
+        } catch (\Exception $e) {
+            $this->logger->critical($e);
+            if (self::DEBUG) {
+                $output->writeln((string) __('%1 Customer : %2 => Keywords : %3', $this->dateTime->gmtDate(), $category->getId(), (string) $keywords));
+            }
+            return false;
+        }
     }
 }

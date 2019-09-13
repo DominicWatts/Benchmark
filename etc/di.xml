@@ -7,6 +7,7 @@
 				<item name="Benchmark_Status" xsi:type="object">Xigen\Benchmark\Console\Command\Status</item>
 				<item name="Benchmark_Price" xsi:type="object">Xigen\Benchmark\Console\Command\Price</item>
 				<item name="Benchmark_Customer" xsi:type="object">Xigen\Benchmark\Console\Command\Customer</item>
+				<item name="Benchmark_Category" xsi:type="object">Xigen\Benchmark\Console\Command\Category</item>
 			</argument>
 		</arguments>
 	</type>

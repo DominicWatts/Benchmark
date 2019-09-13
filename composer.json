@@ -3,7 +3,7 @@
     "description": "Benchmark shell script to test timings on actions",
     "type": "magento2-module",
     "license": "proprietary",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "authors": [
         {
             "email": "dominic@xigen.co.uk",

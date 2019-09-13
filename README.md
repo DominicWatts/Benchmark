@@ -43,3 +43,11 @@ Customer Vat Number Update
 `php bin/magento xigen:benchmark:customer run`
 
 `php bin/magento xigen:benchmark:customer run -l 10`
+
+Category Keywords Update
+
+`xigen:benchmark:category [-l|--limit [LIMIT]] [--] <run>`
+
+`php bin/magento xigen:benchmark:category run`
+
+`php bin/magento xigen:benchmark:category run -l 10`
