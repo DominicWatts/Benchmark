@@ -13,9 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
- * Price class
+ * Category class
  */
-class Price extends Command
+class Category extends Command
 {
     const RUN_ARGUMENT = 'run';
     const LIMIT_OPTION = 'limit';
@@ -46,7 +46,7 @@ class Price extends Command
     protected $output;
 
     /**
-     * Price constructor.
+     * Category constructor.
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Magento\Framework\App\State $state
      * @param \Xigen\AutoShipment\Helper\Shipment $shipmentHelper
@@ -82,7 +82,7 @@ class Price extends Command
         if ($run) {
             $helper = $this->getHelper('question');
             $question = new ConfirmationQuestion(
-                'You are about to run a benchmark test which alters price on products. Are you sure? [y/N]',
+                'You are about to run a benchmark test which alters keyword values on categories. Are you sure? [y/N]',
                 false
             );
 
@@ -90,32 +90,32 @@ class Price extends Command
                 return Cli::RETURN_FAILURE;
             }
 
-            $this->output->writeln((string) __('%1 Start Product Price Benchmark', $this->dateTime->gmtDate()));
+            $this->output->writeln((string) __('%1 Start Category Benchmark', $this->dateTime->gmtDate()));
 
-            $skus = $this->helper->getRandomSku($limit);
+            $categoryIds = $this->helper->getRandomCategoryId($limit);
   
-            $progress = new ProgressBar($this->output, count($skus));
+            $progress = new ProgressBar($this->output, count($categoryIds));
             $progress->start();
 
-            foreach ($skus as $sku) {
-                $this->helper->updateSkuPrice($sku, $this->output);
+            foreach ($categoryIds as $categoryId) {
+                $this->helper->updateCategoryKeywords($categoryId, $this->helper->getRandomKeyword(), \Magento\Store\Model\Store::DEFAULT_STORE_ID, $this->output);
                 $progress->advance();
             }
 
             $progress->finish();
             $this->output->writeln('');
-            $this->output->writeln((string) __('%1 Finish Product Price Benchmark', $this->dateTime->gmtDate()));
+            $this->output->writeln((string) __('%1 Finish Category Benchmark', $this->dateTime->gmtDate()));
         }
     }
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:price [-l|--limit [LIMIT]] [--] <run>
+     * xigen:benchmark:category [-l|--limit [LIMIT]] [--] <run>
      */
     protected function configure()
     {
-        $this->setName("xigen:benchmark:price");
-        $this->setDescription("Product price update benchmark");
+        $this->setName("xigen:benchmark:category");
+        $this->setDescription("Category keywords update benchmark");
         $this->setDefinition([
              new InputArgument(self::RUN_ARGUMENT, InputArgument::REQUIRED, 'Run'),
              new InputOption(self::LIMIT_OPTION, '-l', InputOption::VALUE_OPTIONAL, 'Limit'),

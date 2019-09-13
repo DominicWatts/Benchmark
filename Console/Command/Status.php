@@ -46,7 +46,7 @@ class Status extends Command
     protected $output;
 
     /**
-     * Stock constructor.
+     * Status constructor.
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Magento\Framework\App\State $state
      * @param \Xigen\AutoShipment\Helper\Shipment $shipmentHelper
