@@ -10,7 +10,7 @@ use Magento\Framework\App\Helper\AbstractHelper;
  */
 class Data extends AbstractHelper
 {
-    const DEBUG = true;
+    const DEBUG = false;
 
     /**
      * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
