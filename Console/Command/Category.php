@@ -98,7 +98,12 @@ class Category extends Command
             $progress->start();
 
             foreach ($categoryIds as $categoryId) {
-                $this->helper->updateCategoryKeywords($categoryId, $this->helper->getRandomKeyword(), \Magento\Store\Model\Store::DEFAULT_STORE_ID, $this->output);
+                $this->helper->updateCategoryKeywords(
+                    $categoryId,
+                    $this->helper->getRandomKeyword(),
+                    \Magento\Store\Model\Store::DEFAULT_STORE_ID,
+                    $this->output
+                );
                 $progress->advance();
             }
 
