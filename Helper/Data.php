@@ -390,7 +390,7 @@ class Data extends AbstractHelper
     {
         $array = ["Shop", "Ecommerce","Xigen", "Magento"];
         $randomIndex = array_rand($array);
-        return $array[$randomIndex];;
+        return $array[$randomIndex];
     }
 
     /**
