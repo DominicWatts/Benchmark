@@ -2,6 +2,12 @@
 
 Benchmark shell script to test timings on actions.
 
+![phpcs](https://github.com/DominicWatts/Benchmark/workflows/phpcs/badge.svg)
+
+![PHPCompatibility](https://github.com/DominicWatts/Benchmark/workflows/PHPCompatibility/badge.svg)
+
+![PHPStan](https://github.com/DominicWatts/Benchmark/workflows/PHPStan/badge.svg)
+
 # Install instructions #
 
 `composer require dominicwatts/benchmark`
