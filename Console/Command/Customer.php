@@ -51,6 +51,11 @@ class Customer extends Command
     protected $output;
 
     /**
+     * @var ProgressBarFactory
+     */
+    protected $progressBarFactory;
+
+    /**
      * Customer constructor.
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Magento\Framework\App\State $state
