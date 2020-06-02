@@ -129,7 +129,9 @@ class Category extends Command
                 "%current%/%max% [%bar%] %percent:3s%% %elapsed% %memory:6s% \t| <info>%message%</info>"
             );
 
-            $progress->start();
+            if ($output->getVerbosity() !== OutputInterface::VERBOSITY_NORMAL) {
+                $progress->setOverwrite(false);
+            }
 
             foreach ($categoryIds as $categoryId) {
                 $this->helper->updateCategoryKeywords(
@@ -153,7 +155,7 @@ class Category extends Command
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:category [-l|--limit [LIMIT]] [--] <run>
+     * xigen:benchmark:category [-l|--limit [LIMIT]] [-v|--verbose [LIMIT]] [--] <run>
      */
     protected function configure()
     {
