@@ -1,9 +1,22 @@
 <?php
 
-
 namespace Xigen\Benchmark\Helper;
 
+use Magento\Catalog\Api\CategoryRepositoryInterface;
+use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Catalog\Model\Product\Type;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Magento\CatalogInventory\Api\Data\StockItemInterface;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory as CustomerCollectionFactory;
 use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Psr\Log\LoggerInterface;
 
 /**
  * Data helper class
@@ -46,11 +59,16 @@ class Data extends AbstractHelper
      * @var \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory
      */
     protected $categoryCollectionFactory;
-    
+
     /**
      * @var \Magento\Catalog\Api\CategoryRepositoryInterface
      */
     protected $categoryRepositoryInterface;
+
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $logger;
 
     /**
      * Data constructor.
@@ -63,17 +81,19 @@ class Data extends AbstractHelper
      * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepositoryInterface
      * @param \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory
      * @param \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepositoryInterface
+     * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
-        \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory,
-        \Magento\Catalog\Api\ProductRepositoryInterface $productRepositoryInterface,
-        \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistryInterface,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
-        \Magento\Customer\Model\ResourceModel\Customer\CollectionFactory $customerCollectionFactory,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepositoryInterface,
-        \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory,
-        \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepositoryInterface
+        Context $context,
+        ProductCollectionFactory $productCollectionFactory,
+        ProductRepositoryInterface $productRepositoryInterface,
+        StockRegistryInterface $stockRegistryInterface,
+        DateTime $dateTime,
+        CustomerCollectionFactory $customerCollectionFactory,
+        CustomerRepositoryInterface $customerRepositoryInterface,
+        CategoryCollectionFactory $categoryCollectionFactory,
+        CategoryRepositoryInterface $categoryRepositoryInterface,
+        LoggerInterface $logger
     ) {
         $this->productCollectionFactory = $productCollectionFactory;
         $this->productRepositoryInterface = $productRepositoryInterface;
@@ -83,6 +103,7 @@ class Data extends AbstractHelper
         $this->customerRepositoryInterface = $customerRepositoryInterface;
         $this->categoryCollectionFactory = $categoryCollectionFactory;
         $this->categoryRepositoryInterface = $categoryRepositoryInterface;
+        $this->logger = $logger;
         parent::__construct($context);
     }
 
@@ -96,7 +117,7 @@ class Data extends AbstractHelper
         $collection = $this->productCollectionFactory
             ->create()
             ->addAttributeToSelect('*')
-            ->addAttributeToFilter('type_id', \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE)
+            ->addAttributeToFilter(ProductInterface::TYPE_ID, Type::TYPE_SIMPLE)
             ->setPageSize($limit);
         $collection->getSelect()->order('RAND()');
         return $collection;
@@ -213,19 +234,29 @@ class Data extends AbstractHelper
         $availability = (((string) $qty <= 0) ? '0' : '1');
 
         $stockItem = $this->stockRegistryInterface->getStockItem($product->getId());
-        $stockItem->setData('qty', (string) $qty);
-        $stockItem->setData('is_in_stock', $availability);
+        $stockItem->setData(StockItemInterface::QTY, (string) $qty);
+        $stockItem->setData(StockItemInterface::IS_IN_STOCK, $availability);
 
         try {
             $this->stockRegistryInterface->updateStockItemBySku((string) $sku, $stockItem);
             if (self::DEBUG) {
-                $output->writeln((string) __('%1 SKU: %2 => QTY : %3', $this->dateTime->gmtDate(), $product->getSku(), (string) $qty));
+                $output->writeln((string) __(
+                    '%1 SKU: %2 => QTY : %3',
+                    $this->dateTime->gmtDate(),
+                    $product->getSku(),
+                    (string) $qty
+                ));
             }
             return true;
         } catch (Exception $e) {
             $this->logger->critical($e);
             if (self::DEBUG) {
-                $output->writeln((string) __('%1 Problem SKU: %2 => QTY : %3', $this->dateTime->gmtDate(), $product->getSku(), (string) $qty));
+                $output->writeln((string) __(
+                    '%1 Problem SKU: %2 => QTY : %3',
+                    $this->dateTime->gmtDate(),
+                    $product->getSku(),
+                    (string) $qty
+                ));
             }
             return false;
         }
@@ -249,13 +280,23 @@ class Data extends AbstractHelper
             $product->setStatus((int) $status);
             $product = $this->productRepositoryInterface->save($product);
             if (self::DEBUG) {
-                $output->writeln((string) __('%1 SKU: %2 => Status : %3', $this->dateTime->gmtDate(), $product->getSku(), (string) $status));
+                $output->writeln((string) __(
+                    '%1 SKU: %2 => Status : %3',
+                    $this->dateTime->gmtDate(),
+                    $product->getSku(),
+                    (string) $status
+                ));
             }
             return $product;
         } catch (\Exception $e) {
             $this->logger->critical($e);
             if (self::DEBUG) {
-                $output->writeln((string) __('%1 Problem SKU: %2 => Status : %3', $this->dateTime->gmtDate(), $product->getSku(), (string) $status));
+                $output->writeln((string) __(
+                    '%1 Problem SKU: %2 => Status : %3',
+                    $this->dateTime->gmtDate(),
+                    $product->getSku(),
+                    (string) $status
+                ));
             }
             return false;
         }
@@ -280,13 +321,23 @@ class Data extends AbstractHelper
             $product->setPrice($price);
             $product = $this->productRepositoryInterface->save($product);
             if (self::DEBUG) {
-                $output->writeln((string) __('%1 SKU: %2 => Price : %3', $this->dateTime->gmtDate(), $product->getSku(), (float) $price));
+                $output->writeln((string) __(
+                    '%1 SKU: %2 => Price : %3',
+                    $this->dateTime->gmtDate(),
+                    $product->getSku(),
+                    (float) $price
+                ));
             }
             return $product;
         } catch (\Exception $e) {
             $this->logger->critical($e);
             if (self::DEBUG) {
-                $output->writeln((string) __('%1 Problem SKU: %2 => Price : %3', $this->dateTime->gmtDate(), $product->getSku(), (float) $price));
+                $output->writeln((string) __(
+                    '%1 Problem SKU: %2 => Price : %3',
+                    $this->dateTime->gmtDate(),
+                    $product->getSku(),
+                    (float) $price
+                ));
             }
             return false;
         }
@@ -306,7 +357,7 @@ class Data extends AbstractHelper
             ->addAttributeToSelect('*')
             ->setPageSize($limit);
         if ($websiteId) {
-            $collection->addAttributeToFilter('website_id', ['eq' => $websiteId]);
+            $collection->addAttributeToFilter(CustomerInterface::WEBSITE_ID, ['eq' => $websiteId]);
         }
         $collection->getSelect()->order('RAND()');
         return $collection;
@@ -361,13 +412,23 @@ class Data extends AbstractHelper
             $customer->setTaxvat($taxvat);
             $customer = $this->customerRepositoryInterface->save($customer);
             if (self::DEBUG) {
-                $output->writeln((string) __('%1 Customer : %2 => Tax Vat : %3', $this->dateTime->gmtDate(), $customer->getId(), (string) $taxvat));
+                $output->writeln((string) __(
+                    '%1 Customer : %2 => Tax Vat : %3',
+                    $this->dateTime->gmtDate(),
+                    $customer->getId(),
+                    (string) $taxvat
+                ));
             }
             return $customer;
         } catch (\Exception $e) {
             $this->logger->critical($e);
             if (self::DEBUG) {
-                $output->writeln((string) __('%1 Customer : %2 => Tax Vat : %3', $this->dateTime->gmtDate(), $customer->getId(), (string) $taxvat));
+                $output->writeln((string) __(
+                    '%1 Customer : %2 => Tax Vat : %3',
+                    $this->dateTime->gmtDate(),
+                    $customer->getId(),
+                    (string) $taxvat
+                ));
             }
             return false;
         }
@@ -457,13 +518,23 @@ class Data extends AbstractHelper
             $category->setMetaKeywords($keywords);
             $category = $this->categoryRepositoryInterface->save($category);
             if (self::DEBUG) {
-                $output->writeln((string) __('%1 Category : %2 => Keywords : %3', $this->dateTime->gmtDate(), $category->getId(), (string) $keywords));
+                $output->writeln((string) __(
+                    '%1 Category : %2 => Keywords : %3',
+                    $this->dateTime->gmtDate(),
+                    $category->getId(),
+                    (string) $keywords
+                ));
             }
             return $category;
         } catch (\Exception $e) {
             $this->logger->critical($e);
             if (self::DEBUG) {
-                $output->writeln((string) __('%1 Customer : %2 => Keywords : %3', $this->dateTime->gmtDate(), $category->getId(), (string) $keywords));
+                $output->writeln((string) __(
+                    '%1 Customer : %2 => Keywords : %3',
+                    $this->dateTime->gmtDate(),
+                    $category->getId(),
+                    (string) $keywords
+                ));
             }
             return false;
         }

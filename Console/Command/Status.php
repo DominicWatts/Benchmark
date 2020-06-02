@@ -1,19 +1,25 @@
 <?php
 
-
 namespace Xigen\Benchmark\Console\Command;
 
+use Magento\Framework\App\Area;
+use Magento\Framework\App\State;
 use Magento\Framework\Console\Cli;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\ProgressBarFactory;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Stopwatch\Stopwatch;
+use Xigen\Benchmark\Helper\Data;
 
 /**
- * Status class
+ * Xigen Benchmark Console Command Status class
  */
 class Status extends Command
 {
@@ -24,26 +30,36 @@ class Status extends Command
      * @var \Psr\Log\LoggerInterface
      */
     protected $logger;
+
     /**
      * @var \Magento\Framework\App\State
      */
     protected $state;
+
     /**
      * @var \Xigen\DeleteOrder\Helper\Data
      */
     protected $helper;
+
     /**
      * @var \Magento\Framework\Stdlib\DateTime\DateTime
      */
     protected $dateTime;
+
     /**
      * @var \Symfony\Component\Console\Input\InputInterface
      */
     protected $input;
+
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface
      */
     protected $output;
+
+    /**
+     * @var ProgressBarFactory
+     */
+    protected $progressBarFactory;
 
     /**
      * Status constructor.
@@ -51,17 +67,20 @@ class Status extends Command
      * @param \Magento\Framework\App\State $state
      * @param \Xigen\AutoShipment\Helper\Shipment $shipmentHelper
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
+     * @param ProgressBarFactory $progressBarFactory
      */
     public function __construct(
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Framework\App\State $state,
-        \Xigen\Benchmark\Helper\Data $helper,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
+        LoggerInterface $logger,
+        State $state,
+        Data $helper,
+        DateTime $dateTime,
+        ProgressBarFactory $progressBarFactory
     ) {
         $this->logger = $logger;
         $this->state = $state;
         $this->helper = $helper;
         $this->dateTime = $dateTime;
+        $this->progressBarFactory = $progressBarFactory;
         parent::__construct();
     }
 
@@ -74,7 +93,7 @@ class Status extends Command
     ) {
         $this->input = $input;
         $this->output = $output;
-        $this->state->setAreaCode(\Magento\Framework\App\Area::AREA_GLOBAL);
+        $this->state->setAreaCode(Area::AREA_GLOBAL);
 
         $run = $input->getArgument(self::RUN_ARGUMENT) ?: false;
         $limit = $this->input->getOption(self::LIMIT_OPTION) ?: 5;
@@ -90,21 +109,39 @@ class Status extends Command
                 return Cli::RETURN_FAILURE;
             }
 
+            $stopwatch = new Stopwatch();
+            $stopwatch->start('status');
+
             $this->output->writeln((string) __('%1 Start Product Status Benchmark', $this->dateTime->gmtDate()));
 
             $skus = $this->helper->getRandomSku($limit);
-  
-            $progress = new ProgressBar($this->output, count($skus));
+
+            /** @var ProgressBar $progress */
+            $progress = $this->progressBarFactory->create(
+                [
+                    'output' => $this->output,
+                    'max' => count($skus)
+                ]
+            );
+
+            $progress->setFormat(
+                "%current%/%max% [%bar%] %percent:3s%% %elapsed% %memory:6s% \t| <info>%message%</info>"
+            );
+
             $progress->start();
 
             foreach ($skus as $sku) {
                 $this->helper->updateSkuStatus($sku, $this->helper->getRandomStatus(), $this->output);
+                $progress->setMessage($sku);
                 $progress->advance();
             }
+
+            $event = $stopwatch->stop('status');
 
             $progress->finish();
             $this->output->writeln('');
             $this->output->writeln((string) __('%1 Finish Product Status Benchmark', $this->dateTime->gmtDate()));
+            $this->output->writeln((string) __('%1', (string) $event));
         }
     }
 

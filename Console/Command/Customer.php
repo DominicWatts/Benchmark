@@ -1,19 +1,24 @@
 <?php
 
-
 namespace Xigen\Benchmark\Console\Command;
 
+use Magento\Framework\App\State;
 use Magento\Framework\Console\Cli;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\ProgressBarFactory;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Stopwatch\Stopwatch;
+use Xigen\Benchmark\Helper\Data;
 
 /**
- * Customer class
+ * Xigen Benchmark Console Command Customer class
  */
 class Customer extends Command
 {
@@ -51,17 +56,20 @@ class Customer extends Command
      * @param \Magento\Framework\App\State $state
      * @param \Xigen\AutoShipment\Helper\Shipment $shipmentHelper
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
+     * @param ProgressBarFactory $progressBarFactory
      */
     public function __construct(
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Framework\App\State $state,
-        \Xigen\Benchmark\Helper\Data $helper,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
+        LoggerInterface $logger,
+        State $state,
+        Data $helper,
+        DateTime $dateTime,
+        ProgressBarFactory $progressBarFactory
     ) {
         $this->logger = $logger;
         $this->state = $state;
         $this->helper = $helper;
         $this->dateTime = $dateTime;
+        $this->progressBarFactory = $progressBarFactory;
         parent::__construct();
     }
 
@@ -90,21 +98,39 @@ class Customer extends Command
                 return Cli::RETURN_FAILURE;
             }
 
+            $stopwatch = new Stopwatch();
+            $stopwatch->start('customer');
+
             $this->output->writeln((string) __('%1 Start Customer Benchmark', $this->dateTime->gmtDate()));
 
             $customerIds = $this->helper->getRandomCustomerId($limit);
-  
-            $progress = new ProgressBar($this->output, count($customerIds));
+
+            /** @var ProgressBar $progress */
+            $progress = $this->progressBarFactory->create(
+                [
+                    'output' => $this->output,
+                    'max' => count($customerIds)
+                ]
+            );
+
             $progress->start();
+
+            $progress->setFormat(
+                "%current%/%max% [%bar%] %percent:3s%% %elapsed% %memory:6s% \t| <info>%message%</info>"
+            );
 
             foreach ($customerIds as $customerId) {
                 $this->helper->updateCustomerTaxVat($customerId, $this->helper->getRandomTaxVat(), $this->output);
+                $progress->setMessage((string) __('Customer ID: %1', $customerId));
                 $progress->advance();
             }
+
+            $event = $stopwatch->stop('customer');
 
             $progress->finish();
             $this->output->writeln('');
             $this->output->writeln((string) __('%1 Finish Customer Benchmark', $this->dateTime->gmtDate()));
+            $this->output->writeln((string) __('%1', (string) $event));
         }
     }
 
