@@ -128,7 +128,9 @@ class Stock extends Command
                 "%current%/%max% [%bar%] %percent:3s%% %elapsed% %memory:6s% \t| <info>%message%</info>"
             );
 
-            $progress->start();
+            if ($output->getVerbosity() !== OutputInterface::VERBOSITY_NORMAL) {
+                $progress->setOverwrite(false);
+            }
 
             foreach ($skus as $sku) {
                 $this->helper->updateSkuStock($sku, $this->helper->getRandomStockNumber(), $this->output);
@@ -147,7 +149,7 @@ class Stock extends Command
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:stock [-l|--limit [LIMIT]] [--] <run>
+     * xigen:benchmark:stock [-l|--limit [LIMIT]] [-v|--verbose [LIMIT]] [--] <run>
      */
     protected function configure()
     {

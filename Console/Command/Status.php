@@ -128,7 +128,9 @@ class Status extends Command
                 "%current%/%max% [%bar%] %percent:3s%% %elapsed% %memory:6s% \t| <info>%message%</info>"
             );
 
-            $progress->start();
+            if ($output->getVerbosity() !== OutputInterface::VERBOSITY_NORMAL) {
+                $progress->setOverwrite(false);
+            }
 
             foreach ($skus as $sku) {
                 $this->helper->updateSkuStatus($sku, $this->helper->getRandomStatus(), $this->output);
@@ -147,7 +149,7 @@ class Status extends Command
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:status [-l|--limit [LIMIT]] [--] <run>
+     * xigen:benchmark:status [-l|--limit [LIMIT]] [-v|--verbose [LIMIT]] [--] <run>
      */
     protected function configure()
     {

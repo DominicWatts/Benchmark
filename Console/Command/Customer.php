@@ -118,11 +118,13 @@ class Customer extends Command
                 ]
             );
 
-            $progress->start();
-
             $progress->setFormat(
                 "%current%/%max% [%bar%] %percent:3s%% %elapsed% %memory:6s% \t| <info>%message%</info>"
             );
+
+            if ($output->getVerbosity() !== OutputInterface::VERBOSITY_NORMAL) {
+                $progress->setOverwrite(false);
+            }
 
             foreach ($customerIds as $customerId) {
                 $this->helper->updateCustomerTaxVat($customerId, $this->helper->getRandomTaxVat(), $this->output);
@@ -141,7 +143,7 @@ class Customer extends Command
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:customer [-l|--limit [LIMIT]] [--] <run>
+     * xigen:benchmark:customer [-l|--limit [LIMIT]] [-v|--verbose [LIMIT]] [--] <run>
      */
     protected function configure()
     {

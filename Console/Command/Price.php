@@ -128,7 +128,9 @@ class Price extends Command
                 "%current%/%max% [%bar%] %percent:3s%% %elapsed% %memory:6s% \t| <info>%message%</info>"
             );
 
-            $progress->start();
+            if ($output->getVerbosity() !== OutputInterface::VERBOSITY_NORMAL) {
+                $progress->setOverwrite(false);
+            }
 
             foreach ($skus as $sku) {
                 $this->helper->updateSkuPrice($sku, $this->output);
@@ -147,7 +149,7 @@ class Price extends Command
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:price [-l|--limit [LIMIT]] [--] <run>
+     * xigen:benchmark:price [-l|--limit [LIMIT]] [-v|--verbose [LIMIT]] [--] <run>
      */
     protected function configure()
     {
