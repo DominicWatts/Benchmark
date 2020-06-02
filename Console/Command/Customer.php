@@ -143,7 +143,7 @@ class Customer extends Command
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:customer [-l|--limit [LIMIT]] [-v|--verbose [LIMIT]] [--] <run>
+     * xigen:benchmark:customer [-l|--limit [LIMIT]] [-v|--verbose [VERBOSE]] [--] <run>
      */
     protected function configure()
     {

@@ -149,7 +149,7 @@ class Price extends Command
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:price [-l|--limit [LIMIT]] [-v|--verbose [LIMIT]] [--] <run>
+     * xigen:benchmark:price [-l|--limit [LIMIT]] [-v|--verbose [VERBOSE]] [--] <run>
      */
     protected function configure()
     {

@@ -155,7 +155,7 @@ class Category extends Command
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:category [-l|--limit [LIMIT]] [-v|--verbose [LIMIT]] [--] <run>
+     * xigen:benchmark:category [-l|--limit [LIMIT]] [-v|--verbose [VERBOSE]] [--] <run>
      */
     protected function configure()
     {

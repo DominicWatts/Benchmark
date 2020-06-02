@@ -149,7 +149,7 @@ class Status extends Command
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:status [-l|--limit [LIMIT]] [-v|--verbose [LIMIT]] [--] <run>
+     * xigen:benchmark:status [-l|--limit [LIMIT]] [-v|--verbose [VERBOSE]] [--] <run>
      */
     protected function configure()
     {

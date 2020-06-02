@@ -149,7 +149,7 @@ class Stock extends Command
 
     /**
      * {@inheritdoc}
-     * xigen:benchmark:stock [-l|--limit [LIMIT]] [-v|--verbose [LIMIT]] [--] <run>
+     * xigen:benchmark:stock [-l|--limit [LIMIT]] [-v|--verbose [VERBOSE]] [--] <run>
      */
     protected function configure()
     {
