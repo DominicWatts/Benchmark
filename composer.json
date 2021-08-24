@@ -19,7 +19,7 @@
     ],
     "require": {
         "magento/framework": "*",
-        "symfony/stopwatch": "*",
+        "symfony/stopwatch": "^5",
         "php": ">=7.0.0"
     },
     "autoload": {
