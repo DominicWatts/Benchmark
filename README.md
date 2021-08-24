@@ -8,6 +8,8 @@ Benchmark shell script to test timings on actions.
 
 ![PHPStan](https://github.com/DominicWatts/Benchmark/workflows/PHPStan/badge.svg)
 
+![php-cs-fixer](https://github.com/DominicWatts/Benchmark/workflows/php-cs-fixer/badge.svg)
+
 # Install instructions #
 
 `composer require dominicwatts/benchmark`
