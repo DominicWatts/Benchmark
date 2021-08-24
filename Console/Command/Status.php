@@ -86,6 +86,7 @@ class Status extends Command
 
     /**
      * {@inheritdoc}
+     * @return int
      */
     protected function execute(
         InputInterface $input,
@@ -144,7 +145,10 @@ class Status extends Command
             $this->output->writeln('');
             $this->output->writeln((string) __('%1 Finish Product Status Benchmark', $this->dateTime->gmtDate()));
             $this->output->writeln((string) __('%1', (string) $event));
+
+            return Cli::RETURN_SUCCESS;
         }
+        return Cli::RETURN_FAILURE;
     }
 
     /**
