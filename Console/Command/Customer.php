@@ -80,6 +80,7 @@ class Customer extends Command
 
     /**
      * {@inheritdoc}
+     * @return int
      */
     protected function execute(
         InputInterface $input,
@@ -138,7 +139,10 @@ class Customer extends Command
             $this->output->writeln('');
             $this->output->writeln((string) __('%1 Finish Customer Benchmark', $this->dateTime->gmtDate()));
             $this->output->writeln((string) __('%1', (string) $event));
+
+            return Cli::RETURN_SUCCESS;
         }
+        return Cli::RETURN_FAILURE;
     }
 
     /**
